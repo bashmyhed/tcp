@@ -10,7 +10,7 @@ import RuleCategoriesTreemap from './RuleCategoriesTreemap'
 import SecurityInsights from './SecurityInsights'
 import EmptyStatePanel from './EmptyStatePanel'
 
-function SIEMVisualizationDashboard({ data, onQueryRefine, originalQuery, theme = 'light' }) {
+function SIEMVisualizationDashboard({ data, onQueryRefine, originalQuery, theme = 'terminal-inline' }) {
   // Filter and sort state
   const [filters, setFilters] = useState({
     severity: 'all',
@@ -62,9 +62,9 @@ function SIEMVisualizationDashboard({ data, onQueryRefine, originalQuery, theme 
   if (!data || !data.success) {
     return (
       <div className="space-y-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-          <div className="text-xl text-gray-600 mb-2">Error loading dashboard</div>
-          <div className="text-sm text-gray-500">
+        <div className="bg-black border border-white/20 p-6 text-center">
+          <div className="text-xl text-gray-400 mb-2">Error loading dashboard</div>
+          <div className="text-sm text-gray-400">
             {data?.error || 'An unexpected error occurred'}
           </div>
         </div>
@@ -73,7 +73,7 @@ function SIEMVisualizationDashboard({ data, onQueryRefine, originalQuery, theme 
   }
   
   return (
-    <div className="space-y-6" role="main" aria-label="SIEM Dashboard">
+    <div className="space-y-4" role="main" aria-label="SIEM Dashboard">
       {/* Query Status Header - Always shown */}
       <QueryStatusHeader 
         data={data} 
@@ -89,7 +89,7 @@ function SIEMVisualizationDashboard({ data, onQueryRefine, originalQuery, theme 
           </div>
           
           {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Timeline Chart */}
             <div role="region" aria-label="Timeline Analysis">
               <TimelineChart logs={logs} />
@@ -114,8 +114,8 @@ function SIEMVisualizationDashboard({ data, onQueryRefine, originalQuery, theme 
             </div>
           </div>
           
-          {/* Wazuh-style Security Analysis Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Security Analysis Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Attack Sources */}
             <div role="region" aria-label="Attack Sources Analysis">
               <AttackSourcesChart

@@ -12,21 +12,21 @@ function TopAgentsChart({ logs, onAgentClick, selectedAgent }) {
       const data = payload[0].payload
       
       return (
-        <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
-          <div className="font-medium text-gray-900 mb-2">
+        <div className="bg-gray-900 p-3 border border-gray-300 rounded-lg shadow-lg">
+          <div className="font-medium text-white mb-2">
             {data.name}
           </div>
           <div className="space-y-1">
             <div className="flex justify-between gap-4">
-              <span className="text-sm text-gray-600">Total Events:</span>
-              <span className="text-sm font-medium text-gray-900">{data.count}</span>
+              <span className="text-sm text-gray-400">Total Events:</span>
+              <span className="text-sm font-medium text-white">{data.count}</span>
             </div>
             <div className="flex justify-between gap-4">
-              <span className="text-sm text-gray-600">IP Address:</span>
-              <span className="text-sm font-medium text-gray-900">{data.ip}</span>
+              <span className="text-sm text-gray-400">IP Address:</span>
+              <span className="text-sm font-medium text-white">{data.ip}</span>
             </div>
-            <div className="border-t border-gray-200 pt-1 mt-2">
-              <div className="text-xs text-gray-500 mb-1">Severity Breakdown:</div>
+            <div className="border-t border-gray-700 pt-1 mt-2">
+              <div className="text-xs text-gray-400 mb-1">Severity Breakdown:</div>
               {data.critical > 0 && (
                 <div className="flex justify-between gap-2">
                   <span className="text-xs text-red-600">Critical:</span>
@@ -53,7 +53,7 @@ function TopAgentsChart({ logs, onAgentClick, selectedAgent }) {
               )}
             </div>
           </div>
-          <div className="mt-2 text-xs text-gray-500">
+          <div className="mt-2 text-xs text-gray-400">
             Click to filter by this agent
           </div>
         </div>
@@ -77,11 +77,11 @@ function TopAgentsChart({ logs, onAgentClick, selectedAgent }) {
   
   if (!chartData || chartData.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-gray-900 rounded-lg shadow-sm border border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Top Agents
         </h3>
-        <div className="h-64 flex items-center justify-center text-gray-500">
+        <div className="h-64 flex items-center justify-center text-gray-400">
           <div className="text-center">
             <div className="text-lg mb-2">No agent data available</div>
             <div className="text-sm">Logs need valid agent information</div>
@@ -92,12 +92,12 @@ function TopAgentsChart({ logs, onAgentClick, selectedAgent }) {
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-transparent p-2">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-white">
           Top Agents
         </h3>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-400">
           Click bars to filter
         </div>
       </div>
@@ -146,7 +146,7 @@ function TopAgentsChart({ logs, onAgentClick, selectedAgent }) {
         </ResponsiveContainer>
       </div>
       
-      <div className="mt-4 text-xs text-gray-500 text-center">
+      <div className="mt-4 text-xs text-gray-400 text-center">
         {selectedAgent !== 'all' && (
           <span>
             Filtered by agent: <span className="font-medium">{selectedAgent}</span>.{' '}

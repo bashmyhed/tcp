@@ -192,8 +192,8 @@ function LogViewer({ logs = [], searchTerm = '', onStatusChange }) {
                 onClick={() => handleSortChange(field)}
                 className={`px-2 py-1 rounded transition-colors ${
                   sortBy === field 
-                    ? 'bg-white/20 text-white' 
-                    : 'text-white/60 hover:text-white hover:bg-white/10'
+                    ? 'bg-gray-900/20 text-white' 
+                    : 'text-white/60 hover:text-white hover:bg-gray-900/10'
                 }`}
               >
                 {field.charAt(0).toUpperCase() + field.slice(1)}

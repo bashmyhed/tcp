@@ -78,10 +78,10 @@ const AttackSourcesChart = ({ logs, onSourceClick, selectedSource, theme = 'ligh
       const lastSeen = new Date(data.lastSeen).toLocaleString()
 
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">Attack Source: {label}</p>
-          <p className="text-sm text-gray-600">Country: {data.country}</p>
-          <p className="text-sm text-gray-600">Last Seen: {lastSeen}</p>
+        <div className="bg-black p-3 border border-white/20 shadow-lg">
+          <p className="font-medium text-white">Attack Source: {label}</p>
+          <p className="text-sm text-gray-400">Country: {data.country}</p>
+          <p className="text-sm text-gray-400">Last Seen: {lastSeen}</p>
           <div className="mt-2 space-y-1">
             <p className="text-sm">
               <span className="font-medium">Total Attacks:</span> {data.count}
@@ -107,7 +107,7 @@ const AttackSourcesChart = ({ logs, onSourceClick, selectedSource, theme = 'ligh
               </p>
             )}
           </div>
-          <p className="text-xs text-gray-500 mt-2">Click to filter by this source</p>
+          <p className="text-xs text-gray-400 mt-2">Click to filter by this source</p>
         </div>
       )
     }
@@ -116,11 +116,11 @@ const AttackSourcesChart = ({ logs, onSourceClick, selectedSource, theme = 'ligh
 
   if (!attackSourcesData.length) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-transparent p-2">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Top Attack Sources
         </h3>
-        <div className="text-center text-gray-500">
+        <div className="text-center text-gray-400">
           <p>No attack sources detected</p>
         </div>
       </div>
@@ -128,20 +128,20 @@ const AttackSourcesChart = ({ logs, onSourceClick, selectedSource, theme = 'ligh
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-transparent p-2">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-white">
           Top Attack Sources
         </h3>
         {selectedSource && selectedSource !== 'all' && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Filtered by:</span>
+            <span className="text-sm text-gray-400">Filtered by:</span>
             <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-sm font-medium">
               {selectedSource}
             </span>
             <button
               onClick={() => onSourceClick && onSourceClick('all')}
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
+              className="text-xs text-gray-400 hover:text-gray-700 underline"
               aria-label="Clear source filter"
             >
               Clear
@@ -197,48 +197,48 @@ const AttackSourcesChart = ({ logs, onSourceClick, selectedSource, theme = 'ligh
       <div className="mt-4 flex flex-wrap items-center gap-4 text-xs">
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-red-500 rounded"></div>
-          <span className="text-gray-600">Critical Severity</span>
+          <span className="text-gray-400">Critical Severity</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-orange-500 rounded"></div>
-          <span className="text-gray-600">High Severity</span>
+          <span className="text-gray-400">High Severity</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-          <span className="text-gray-600">Medium Severity</span>
+          <span className="text-gray-400">Medium Severity</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-3 h-3 bg-blue-500 rounded"></div>
-          <span className="text-gray-600">Low/Other</span>
+          <span className="text-gray-400">Low/Other</span>
         </div>
       </div>
 
       {/* Summary stats */}
-      <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="mt-4 pt-4 border-t border-gray-700">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-white">
               {attackSourcesData.length}
             </div>
-            <div className="text-xs text-gray-600">Unique Sources</div>
+            <div className="text-xs text-gray-400">Unique Sources</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-white">
               {attackSourcesData.reduce((sum, source) => sum + source.count, 0)}
             </div>
-            <div className="text-xs text-gray-600">Total Attacks</div>
+            <div className="text-xs text-gray-400">Total Attacks</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-red-600">
               {attackSourcesData.reduce((sum, source) => sum + source.critical, 0)}
             </div>
-            <div className="text-xs text-gray-600">Critical Events</div>
+            <div className="text-xs text-gray-400">Critical Events</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-white">
               {new Set(attackSourcesData.map(s => s.country).filter(c => c !== 'Unknown')).size}
             </div>
-            <div className="text-xs text-gray-600">Countries</div>
+            <div className="text-xs text-gray-400">Countries</div>
           </div>
         </div>
       </div>

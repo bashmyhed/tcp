@@ -8,23 +8,22 @@ function SummaryMetricsGrid({ logs }) {
   }, [logs])
   
   const MetricCard = ({ title, value, icon: Icon, color, description, trend }) => {
-    return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between">
+  return (
+      <div className="flex items-center justify-between">
           <div className="flex-1">
-            <div className="text-sm font-medium text-gray-500 mb-1">
+            <div className="text-sm font-medium text-gray-400 mb-1">
               {title}
             </div>
             <div className={`text-3xl font-bold ${color}`}>
               {formatNumber(value)}
             </div>
             {description && (
-              <div className="text-sm text-gray-600 mt-2">
+              <div className="text-sm text-gray-400 mt-2">
                 {description}
               </div>
             )}
             {trend && (
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-gray-400 mt-1">
                 {trend}
               </div>
             )}
@@ -33,7 +32,6 @@ function SummaryMetricsGrid({ logs }) {
             <Icon size={24} className={color} />
           </div>
         </div>
-      </div>
     )
   }
   

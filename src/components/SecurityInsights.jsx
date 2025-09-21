@@ -164,11 +164,11 @@ const SecurityInsights = ({ logs }) => {
 
   if (insights.recommendations.length === 0 && insights.threats.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-transparent p-2">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Security Insights
         </h3>
-        <div className="text-center text-gray-500 py-6">
+        <div className="text-center text-gray-400 py-6">
           <Info size={36} className="mx-auto mb-2 text-blue-400" />
           <p>No significant security insights available for the current dataset</p>
           <p className="text-sm mt-2">Try querying a larger time range or more security log sources</p>
@@ -178,8 +178,8 @@ const SecurityInsights = ({ logs }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+    <div className="bg-transparent p-2">
+      <h3 className="text-lg font-semibold text-white mb-4">
         Security Insights
       </h3>
       
@@ -210,7 +210,7 @@ const SecurityInsights = ({ logs }) => {
           </h4>
         </div>
         
-        <p className="mt-1 text-gray-600">
+        <p className="mt-1 text-gray-400">
           {insights.summary.message}
         </p>
         
@@ -219,25 +219,25 @@ const SecurityInsights = ({ logs }) => {
             <div className="text-xl font-bold text-gray-800">
               {insights.summary.attackCount}
             </div>
-            <div className="text-xs text-gray-500">Attack Events</div>
+            <div className="text-xs text-gray-400">Attack Events</div>
           </div>
           <div className="text-center">
             <div className="text-xl font-bold text-red-600">
               {insights.summary.criticalEvents}
             </div>
-            <div className="text-xs text-gray-500">Critical Events</div>
+            <div className="text-xs text-gray-400">Critical Events</div>
           </div>
           <div className="text-center">
             <div className="text-xl font-bold text-gray-800">
               {insights.summary.uniqueSources}
             </div>
-            <div className="text-xs text-gray-500">Source IPs</div>
+            <div className="text-xs text-gray-400">Source IPs</div>
           </div>
           <div className="text-center">
             <div className="text-xl font-bold text-gray-800">
               {insights.summary.uniqueTargets}
             </div>
-            <div className="text-xs text-gray-500">Target Systems</div>
+            <div className="text-xs text-gray-400">Target Systems</div>
           </div>
         </div>
       </div>
@@ -271,7 +271,7 @@ const SecurityInsights = ({ logs }) => {
                     {threat.title}
                   </h5>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-400">
                   {threat.description}
                 </p>
               </div>
@@ -309,7 +309,7 @@ const SecurityInsights = ({ logs }) => {
                     {recommendation.title}
                   </h5>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-400">
                   {recommendation.description}
                 </p>
               </div>

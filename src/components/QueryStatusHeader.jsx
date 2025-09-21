@@ -43,7 +43,7 @@ function QueryStatusHeader({ data, originalQuery }) {
         </svg>
         {/* Percentage text */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-lg font-bold text-gray-700">
+          <span className="text-lg font-bold text-white">
             {percentage}%
           </span>
         </div>
@@ -52,15 +52,15 @@ function QueryStatusHeader({ data, originalQuery }) {
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div className="bg-transparent p-2">
       {/* Header Row */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          <h2 className="text-lg font-semibold text-white mb-2">
             Query Analysis Results
           </h2>
           {originalQuery && (
-            <div className="text-sm text-gray-600 bg-gray-50 rounded-md p-3 font-mono">
+            <div className="text-sm text-gray-300 bg-gray-800 rounded-md p-3 font-mono">
               &quot;{originalQuery}&quot;
             </div>
           )}
@@ -77,7 +77,7 @@ function QueryStatusHeader({ data, originalQuery }) {
               <div className={`text-sm font-medium ${confidenceInfo.color}`}>
                 {confidenceInfo.label}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-400">
                 {confidenceInfo.message}
               </div>
             </div>
@@ -86,16 +86,16 @@ function QueryStatusHeader({ data, originalQuery }) {
       </div>
       
       {/* Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-700">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-lg">
             <Clock size={20} className="text-blue-600" />
           </div>
           <div>
-            <div className="text-lg font-semibold text-gray-900">
+            <div className="text-lg font-semibold text-white">
               {formatDuration(stats.took)}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-400">
               Execution Time
             </div>
           </div>
@@ -106,10 +106,10 @@ function QueryStatusHeader({ data, originalQuery }) {
             <Database size={20} className="text-green-600" />
           </div>
           <div>
-            <div className="text-lg font-semibold text-gray-900">
+            <div className="text-lg font-semibold text-white">
               {formatNumber(stats.total_hits)}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-400">
               Total Hits
             </div>
           </div>
@@ -120,10 +120,10 @@ function QueryStatusHeader({ data, originalQuery }) {
             <Database size={20} className="text-purple-600" />
           </div>
           <div>
-            <div className="text-lg font-semibold text-gray-900">
+            <div className="text-lg font-semibold text-white">
               {formatNumber(data.data?.log_count || 0)}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-400">
               Logs Returned
             </div>
           </div>

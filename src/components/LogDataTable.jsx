@@ -70,11 +70,11 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
   
   if (processedLogs.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-gray-900 rounded-lg shadow-sm border border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Security Events
         </h3>
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-gray-400">
           <div className="text-lg mb-2">No events match your filters</div>
           <div className="text-sm">Try adjusting your search criteria</div>
         </div>
@@ -83,14 +83,14 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="bg-gray-900 rounded-lg shadow-sm border border-gray-700">
       {/* Table Header with Controls */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-700">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-white">
             Security Events
           </h3>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-400">
             {formatNumber(processedLogs.length)} events
           </div>
         </div>
@@ -138,11 +138,11 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-800">
             <tr>
               <th className="w-8 px-4 py-3"></th>
               <th 
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-800"
                 onClick={() => handleSort('timestamp')}
               >
                 <div className="flex items-center gap-1">
@@ -151,7 +151,7 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                 </div>
               </th>
               <th 
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-800"
                 onClick={() => handleSort('severity')}
               >
                 <div className="flex items-center gap-1">
@@ -160,7 +160,7 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                 </div>
               </th>
               <th 
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-800"
                 onClick={() => handleSort('agent')}
               >
                 <div className="flex items-center gap-1">
@@ -169,7 +169,7 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                 </div>
               </th>
               <th 
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-gray-800"
                 onClick={() => handleSort('rule')}
               >
                 <div className="flex items-center gap-1">
@@ -177,12 +177,12 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                   <SortIcon field="rule" />
                 </div>
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-gray-900 divide-y divide-gray-200">
             {paginatedLogs.map((log, index) => {
               const globalIndex = startIndex + index
               const isExpanded = expandedRow === globalIndex
@@ -192,13 +192,13 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                 <React.Fragment key={globalIndex}>
                   {/* Main Row */}
                   <tr 
-                    className="hover:bg-gray-50 cursor-pointer"
+                    className="hover:bg-gray-800 cursor-pointer"
                     onClick={() => setExpandedRow(isExpanded ? null : globalIndex)}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-white">
                       {new Date(log.timestamp || log['@timestamp']).toLocaleString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -211,10 +211,10 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                         {severityInfo.label}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-white">
                       {log.agent?.name || log.host?.name || 'Unknown'}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-900 max-w-md truncate">
+                    <td className="px-4 py-4 text-sm text-white max-w-md truncate">
                       {log.rule?.description || log.full_log || 'No description'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -223,7 +223,7 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                           e.stopPropagation()
                           handleCopyLog(log)
                         }}
-                        className="text-gray-400 hover:text-gray-600 p-1"
+                        className="text-gray-400 hover:text-gray-400 p-1"
                         title="Copy log JSON"
                       >
                         <Copy size={16} />
@@ -234,29 +234,29 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                   {/* Expanded Row */}
                   {isExpanded && (
                     <tr>
-                      <td colSpan="6" className="px-4 py-6 bg-gray-50">
+                      <td colSpan="6" className="px-4 py-6 bg-gray-800">
                         <div className="space-y-4">
                           {/* Key Details */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">Event Details</h4>
+                              <h4 className="font-medium text-white mb-2">Event Details</h4>
                               <dl className="space-y-1 text-sm">
                                 <div>
-                                  <dt className="text-gray-500 inline">Rule ID:</dt>
-                                  <dd className="text-gray-900 inline ml-2">{log.rule?.id || 'N/A'}</dd>
+                                  <dt className="text-gray-400 inline">Rule ID:</dt>
+                                  <dd className="text-white inline ml-2">{log.rule?.id || 'N/A'}</dd>
                                 </div>
                                 <div>
-                                  <dt className="text-gray-500 inline">Level:</dt>
-                                  <dd className="text-gray-900 inline ml-2">{log.level || 0}</dd>
+                                  <dt className="text-gray-400 inline">Level:</dt>
+                                  <dd className="text-white inline ml-2">{log.level || 0}</dd>
                                 </div>
                                 <div>
-                                  <dt className="text-gray-500 inline">Location:</dt>
-                                  <dd className="text-gray-900 inline ml-2">{log.location || 'N/A'}</dd>
+                                  <dt className="text-gray-400 inline">Location:</dt>
+                                  <dd className="text-white inline ml-2">{log.location || 'N/A'}</dd>
                                 </div>
                                 {log.rule?.groups && (
                                   <div>
-                                    <dt className="text-gray-500 inline">Groups:</dt>
-                                    <dd className="text-gray-900 inline ml-2">
+                                    <dt className="text-gray-400 inline">Groups:</dt>
+                                    <dd className="text-white inline ml-2">
                                       {Array.isArray(log.rule.groups) ? log.rule.groups.join(', ') : log.rule.groups}
                                     </dd>
                                   </div>
@@ -265,32 +265,32 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                             </div>
                             
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">Source Information</h4>
+                              <h4 className="font-medium text-white mb-2">Source Information</h4>
                               <dl className="space-y-1 text-sm">
                                 {log.agent && (
                                   <>
                                     <div>
-                                      <dt className="text-gray-500 inline">Agent:</dt>
-                                      <dd className="text-gray-900 inline ml-2">{log.agent.name}</dd>
+                                      <dt className="text-gray-400 inline">Agent:</dt>
+                                      <dd className="text-white inline ml-2">{log.agent.name}</dd>
                                     </div>
                                     {log.agent.ip && (
                                       <div>
-                                        <dt className="text-gray-500 inline">Agent IP:</dt>
-                                        <dd className="text-gray-900 inline ml-2">{log.agent.ip}</dd>
+                                        <dt className="text-gray-400 inline">Agent IP:</dt>
+                                        <dd className="text-white inline ml-2">{log.agent.ip}</dd>
                                       </div>
                                     )}
                                   </>
                                 )}
                                 {log.host && (
                                   <div>
-                                    <dt className="text-gray-500 inline">Host:</dt>
-                                    <dd className="text-gray-900 inline ml-2">{log.host.name}</dd>
+                                    <dt className="text-gray-400 inline">Host:</dt>
+                                    <dd className="text-white inline ml-2">{log.host.name}</dd>
                                   </div>
                                 )}
                                 {log.data?.srcip && (
                                   <div>
-                                    <dt className="text-gray-500 inline">Source IP:</dt>
-                                    <dd className="text-gray-900 inline ml-2">{log.data.srcip}</dd>
+                                    <dt className="text-gray-400 inline">Source IP:</dt>
+                                    <dd className="text-white inline ml-2">{log.data.srcip}</dd>
                                   </div>
                                 )}
                               </dl>
@@ -300,8 +300,8 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
                           {/* Full Log Message */}
                           {log.full_log && (
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">Raw Log</h4>
-                              <pre className="bg-white p-3 rounded border text-xs text-gray-700 whitespace-pre-wrap break-words">
+                              <h4 className="font-medium text-white mb-2">Raw Log</h4>
+                              <pre className="bg-gray-900 p-3 rounded border text-xs text-gray-700 whitespace-pre-wrap break-words">
                                 {log.full_log}
                               </pre>
                             </div>
@@ -319,7 +319,7 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
       
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+        <div className="px-4 py-3 border-t border-gray-700 flex items-center justify-between">
           <div className="text-sm text-gray-700">
             Showing {startIndex + 1} to {Math.min(startIndex + pageSize, processedLogs.length)} of {processedLogs.length} results
           </div>
@@ -328,7 +328,7 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -340,7 +340,7 @@ function LogDataTable({ logs, filters, onFiltersChange, onSortChange, sortConfig
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>

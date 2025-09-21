@@ -47,7 +47,7 @@ function LogEntry({ log, searchTerm, isExpanded, onToggleExpand, index }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.2, delay: index * 0.02 }}
-      className="border-b border-white/10 hover:bg-white/5 transition-colors group"
+      className="border-b border-white/10 hover:bg-gray-900/5 transition-colors group"
     >
       {/* Main log line */}
       <div

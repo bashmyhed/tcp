@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar'
 import LogViewer from '../components/LogViewer'
 import SIEMVisualizationDashboard from '../components/SIEMVisualizationDashboard'
 import { sampleSiemLogs, sampleApiResponse } from '../utils/sampleSiemData'
-import { wazuhDashboardDemo, calculateAttackStatistics } from '../utils/wazuhDemoData'
+import { wazuhDashboardDemo, calculateAttackStatistics, generateDemoDataFromQuery } from '../utils/wazuhDemoData'
 
 // Setup wizard states
 const SETUP_STATES = {
@@ -52,6 +52,9 @@ function ChatPage() {
   const [dashboardData, setDashboardData] = useState(null)
   const [showDashboard, setShowDashboard] = useState(false)
   const [viewMode, setViewMode] = useState('table') // 'table' or 'dashboard'
+  
+  // Demo mode state
+  const [demoMode, setDemoMode] = useState(false)
 
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
@@ -450,10 +453,91 @@ function ChatPage() {
     if (!inputValue.trim() || isLoading) return
 
     const text = inputValue.trim()
+    const lower = text.toLowerCase()
     setInputValue('')
 
     // Add user message
     addUserMessage(text)
+
+    // Global DEMO quick toggle (works in any setup state)
+    if (['demo', 'demo on', 'start demo', 'enable demo', 'demo mode', 'demo mode on'].includes(lower)) {
+      // Clear existing messages and simulate complete session
+      setMessages([])
+      setDemoMode(true)
+      setSetupState(SETUP_STATES.COMPLETED)
+      
+      // Ensure current chat has a demo chat_id so other code paths don't block
+      setChatSessions(prev => prev.map(chat =>
+        chat.id === activeSession
+          ? { ...chat, chat_id: 'demo-chat-session-abc123', session_info: { username: 'admin', chat_id: 'demo-chat-session-abc123', title: 'Security Analysis' }, title: 'Security Analysis' }
+          : chat
+      ))
+
+      // Simulate the entire login conversation with delays
+      const simulateLoginFlow = async () => {
+        // Step 1: Welcome
+        await new Promise(r => setTimeout(r, 300))
+        setMessages(prev => [...prev, { id: 'demo-1', type: 'system', content: 'Welcome to Wazuh Terminal Chat.\nTo get started, I need to collect some configuration information.\n\nPlease enter your Wazuh username:' }])
+        
+        await new Promise(r => setTimeout(r, 1200))
+        setMessages(prev => [...prev, { id: 'demo-2', type: 'user', content: 'admin' }])
+        
+        await new Promise(r => setTimeout(r, 800))
+        setMessages(prev => [...prev, { id: 'demo-3', type: 'system', content: 'Username set to: admin\n\nNow please enter your Wazuh password:' }])
+        
+        await new Promise(r => setTimeout(r, 1000))
+        setMessages(prev => [...prev, { id: 'demo-4', type: 'user', content: '••••••••••' }])
+        
+        await new Promise(r => setTimeout(r, 600))
+        setMessages(prev => [...prev, { id: 'demo-5', type: 'system', content: 'Password confirmed.\n\nRules configuration loaded successfully.' }])
+        
+        await new Promise(r => setTimeout(r, 900))
+        setMessages(prev => [...prev, { id: 'demo-6', type: 'system', content: '✓ Session created successfully\nConnected as: admin\nSession ID: wazuh-demo-session-abc123\nReady for security analysis.' }])
+        
+        await new Promise(r => setTimeout(r, 1200))
+        setMessages(prev => [...prev, { id: 'demo-7', type: 'user', content: 'Show me all recent security logs with high severity' }])
+        
+        await new Promise(r => setTimeout(r, 400))
+        setMessages(prev => [...prev, { id: 'demo-8', type: 'system', content: 'Analyzing security query...' }])
+        
+        // Generate demo data for the query
+        await new Promise(r => setTimeout(r, 1500))
+        const demoData = generateDemoDataFromQuery('high severity security logs recent')
+        
+        const confidence = Math.round(demoData.nl_confidence * 100)
+        const logs = demoData.data.logs || []
+        
+        // Add the analysis results as a chat message
+        const analysisMsg = `✓ Query executed successfully (${confidence}% confidence)\n` +
+          `Found: ${logs.length.toLocaleString()} high-severity security events\n` +
+          `Execution time: ${demoData.data.search_stats?.took || 245}ms\n\n` +
+          `📊 SECURITY ANALYSIS RESULTS:\n\n`
+          
+        setMessages(prev => [...prev, { id: 'demo-analysis', type: 'system', content: analysisMsg }])
+        
+        // Add charts as inline messages
+        await new Promise(r => setTimeout(r, 800))
+        setMessages(prev => [...prev, { 
+          id: 'demo-charts', 
+          type: 'dashboard', 
+          content: 'charts',
+          data: demoData.data,
+          query: 'Show me all recent security logs with high severity'
+        }])
+        
+        await new Promise(r => setTimeout(r, 600))
+        const finalMsg = `\n🔍 Try more queries like:\n` +
+          `• "Critical malware detections last hour"\n` +
+          `• "Brute force attacks on web servers"\n` +
+          `• "Network intrusions from external IPs"\n` +
+          `\n🎯 Demo Mode - Type 'demo off' to disable`
+        
+        startTyping(finalMsg)
+      }
+      
+      simulateLoginFlow()
+      return
+    }
 
     // Handle extend or new session choice
     if (setupState === SETUP_STATES.ASK_EXTEND_OR_NEW) {
@@ -534,6 +618,61 @@ function ChatPage() {
 
     // Normal chat mode - send actual query
     if (setupState === SETUP_STATES.COMPLETED) {
+      // Demo mode toggle commands
+      if (text.toLowerCase() === 'demo on' || text.toLowerCase() === 'demo mode on') {
+        setDemoMode(true)
+        addSystemMessage('🎯 Demo Mode ENABLED\n\nNow any query will generate realistic demo data!\n\nTry queries like:\n• "Show me critical malware last hour"\n• "Authentication failures on web servers"\n• "SQL injection attacks today"\n• "Network intrusions from firewall"\n• "Privilege escalation attempts"\n\nType "demo off" to disable demo mode.')
+        return
+      }
+      
+      if (text.toLowerCase() === 'demo off' || text.toLowerCase() === 'demo mode off') {
+        setDemoMode(false)
+        setShowDashboard(false)
+        setShowLogViewer(false)
+        addSystemMessage('Demo Mode DISABLED\n\nQueries will now use the real API backend.')
+        return
+      }
+      
+      // If in demo mode, generate data from query
+      if (demoMode) {
+        addSystemMessage(`Analyzing query: "${text}"...`)
+        setLastQueryTerm(text)
+        
+        // Simulate processing delay
+        setTimeout(async () => {
+          const demoData = generateDemoDataFromQuery(text)
+          
+          const confidence = Math.round(demoData.nl_confidence * 100)
+          const logs = demoData.data.logs || []
+          
+          // Add analysis results
+          const analysisMsg = `✓ Demo Query Executed (${confidence}% confidence)\n` +
+            `Found: ${logs.length.toLocaleString()} matching security events\n` +
+            `Execution time: ${demoData.data.search_stats?.took || 'N/A'}ms\n\n` +
+            `📊 SECURITY ANALYSIS:\n`
+          
+          setMessages(prev => [...prev, { id: `demo-analysis-${Date.now()}`, type: 'system', content: analysisMsg }])
+          
+          // Add charts inline
+          await new Promise(r => setTimeout(r, 400))
+          setMessages(prev => [...prev, { 
+            id: `demo-charts-${Date.now()}`, 
+            type: 'dashboard', 
+            content: 'charts',
+            data: demoData.data,
+            query: text
+          }])
+          
+          // Add footer
+          await new Promise(r => setTimeout(r, 300))
+          const footerMsg = `\n💡 This is DEMO data - no real systems queried!\n` +
+            `Try more queries or type 'demo off' to disable demo mode.`
+          
+          startTyping(footerMsg)
+        }, 600 + Math.random() * 400)
+        return
+      }
+      
       const currentChatSession = chatSessions.find(s => s.id === activeSession)
       if (!currentChatSession?.chat_id) {
         addSystemMessage('❌ No active session found. Please restart the setup process.')
@@ -723,6 +862,13 @@ function ChatPage() {
         
         {/* Status and shortcuts */}
         <div className="flex items-center gap-2 text-xs">
+          {/* Show demo mode status */}
+          {demoMode && (
+            <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-medium">
+              🎯 DEMO MODE
+            </span>
+          )}
+          
           {/* Show current view status */}
           {showDashboard && (
             <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs">
@@ -742,7 +888,7 @@ function ChatPage() {
         </div>
       </div>
 
-      {/* Main content area - split between chat and log viewer */}
+      {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Terminal Output + Input */}
         <div className={`${showLogViewer ? 'h-1/2' : 'flex-1'} overflow-y-auto px-3 pb-4 transition-all duration-300`}>
@@ -762,6 +908,37 @@ function ChatPage() {
                 </span>
               ) : m.type === 'system' ? (
                 <span className="text-white/60">{m.content}</span>
+              ) : m.type === 'dashboard' ? (
+                <div className="w-full">
+                  <SIEMVisualizationDashboard
+                    data={{
+                      success: true,
+                      nl_confidence: m.data.nl_confidence || 0.9,
+                      data: {
+                        search_stats: m.data.search_stats,
+                        logs: m.data.logs || [],
+                        log_count: m.data.log_count || 0,
+                        has_logs: m.data.has_logs || false,
+                        nlp_response: {
+                          suggestions: m.data.nlp_response?.suggestions || [],
+                          fallback_used: m.data.nlp_response?.fallback_used || false
+                        }
+                      },
+                      nl_validation: {
+                        issues: [],
+                        optimizations: []
+                      }
+                    }}
+                    originalQuery={m.query}
+                    onQueryRefine={(newQuery) => {
+                      setInputValue(newQuery)
+                      setTimeout(() => {
+                        inputRef.current?.focus()
+                      }, 100)
+                    }}
+                    theme="terminal-inline"
+                  />
+                </div>
               ) : (
                 <span>{m.content}</span>
               )}
@@ -787,6 +964,7 @@ function ChatPage() {
                   setupState === SETUP_STATES.ASK_RULES_FILE ? 'Use file picker above or type "retry"...' :
                   setupState === SETUP_STATES.ASK_EXTEND_OR_NEW ? 'Type "extend" or "new"...' :
                   setupState === SETUP_STATES.ASK_WHICH_SESSION ? 'Enter session number...' :
+                  demoMode ? 'Try: "critical malware last hour" or "authentication failures"...' :
                   'Type a command and press Enter...'
                 }
                 className="flex-1 bg-transparent outline-none border-none text-white placeholder-white/40 caret-white"
@@ -808,43 +986,6 @@ function ChatPage() {
         <div ref={messagesEndRef} />
         </div>
         
-        {/* SIEM Dashboard */}
-        {showDashboard && dashboardData && (
-          <div className="h-1/2 border-t border-white/20 overflow-auto bg-gray-50">
-            <div className="p-4">
-              <SIEMVisualizationDashboard
-                data={{
-                  success: true,
-                  nl_confidence: dashboardData.nl_confidence || dashboardData.nlp_response?.confidence || 0,
-                  data: {
-                    search_stats: dashboardData.search_stats,
-                    logs: dashboardData.logs || [],
-                    log_count: dashboardData.log_count || 0,
-                    has_logs: dashboardData.has_logs || false,
-                    nlp_response: {
-                      suggestions: dashboardData.nlp_response?.suggestions || [],
-                      fallback_used: dashboardData.nlp_response?.fallback_used || false
-                    }
-                  },
-                  nl_validation: {
-                    issues: dashboardData.nlp_response?.validation?.issues?.map(issue => issue.message) || [],
-                    optimizations: dashboardData.nlp_response?.validation?.optimizations || []
-                  }
-                }}
-                originalQuery={lastQueryTerm}
-                onQueryRefine={(newQuery) => {
-                  // Set the input value and trigger a new query
-                  setInputValue(newQuery)
-                  // Focus the input
-                  setTimeout(() => {
-                    inputRef.current?.focus()
-                  }, 100)
-                }}
-                theme="light"
-              />
-            </div>
-          </div>
-        )}
         
         {/* SIEM Log Viewer */}
         {showLogViewer && (

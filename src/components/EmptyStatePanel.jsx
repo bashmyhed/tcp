@@ -14,20 +14,20 @@ function EmptyStatePanel({ data, originalQuery, onQueryRefine }) {
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+    <div className="bg-black border border-white/20 p-4">
       {/* Main Empty State */}
       <div className="text-center mb-8">
-        <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+        <div className="mx-auto w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-6">
           <Search size={48} className="text-gray-400" />
         </div>
         
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-white mb-2">
           No logs found
         </h2>
         
         {originalQuery && (
-          <p className="text-gray-600 mb-4">
-            No results found for: <span className="font-mono bg-gray-100 px-2 py-1 rounded">"{originalQuery}"</span>
+          <p className="text-gray-400 mb-4">
+            No results found for: <span className="font-mono bg-gray-800 px-2 py-1 rounded">"{originalQuery}"</span>
           </p>
         )}
         
@@ -42,7 +42,7 @@ function EmptyStatePanel({ data, originalQuery, onQueryRefine }) {
       {/* Suggestions Section */}
       {suggestions.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-white mb-4">
             Try these suggestions:
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -64,7 +64,7 @@ function EmptyStatePanel({ data, originalQuery, onQueryRefine }) {
       {/* Validation Issues */}
       {validationIssues.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-white mb-4">
             Query Issues:
           </h3>
           <div className="space-y-3">
@@ -91,7 +91,7 @@ function EmptyStatePanel({ data, originalQuery, onQueryRefine }) {
       {/* Optimizations */}
       {optimizations.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-white mb-4">
             Optimization Tips:
           </h3>
           <div className="space-y-3">
@@ -116,11 +116,11 @@ function EmptyStatePanel({ data, originalQuery, onQueryRefine }) {
       )}
       
       {/* General Tips */}
-      <div className="border-t border-gray-200 pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="border-t border-gray-700 pt-6">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Search Tips:
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-400">
           <div>
             <div className="font-medium text-gray-700 mb-2">Time Ranges:</div>
             <ul className="space-y-1">

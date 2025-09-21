@@ -79,7 +79,7 @@ function LogFilters({
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-3 py-1 rounded border transition-colors ${
               showFilters 
-                ? 'border-white/30 bg-white/10 text-white' 
+                ? 'border-white/30 bg-gray-900/10 text-white' 
                 : 'border-white/20 hover:border-white/30 text-white/80 hover:text-white'
             }`}
           >
@@ -123,19 +123,19 @@ function LogFilters({
               <div className="py-1 min-w-32">
                 <button
                   onClick={() => handleExport('json')}
-                  className="w-full text-left px-3 py-1 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                  className="w-full text-left px-3 py-1 text-sm text-white/80 hover:text-white hover:bg-gray-900/10 transition-colors"
                 >
                   JSON
                 </button>
                 <button
                   onClick={() => handleExport('csv')}
-                  className="w-full text-left px-3 py-1 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                  className="w-full text-left px-3 py-1 text-sm text-white/80 hover:text-white hover:bg-gray-900/10 transition-colors"
                 >
                   CSV
                 </button>
                 <button
                   onClick={() => handleExport('txt')}
-                  className="w-full text-left px-3 py-1 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                  className="w-full text-left px-3 py-1 text-sm text-white/80 hover:text-white hover:bg-gray-900/10 transition-colors"
                 >
                   Text
                 </button>

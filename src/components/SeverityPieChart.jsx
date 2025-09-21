@@ -21,24 +21,24 @@ function SeverityPieChart({ logs, onSeverityClick, selectedSeverity }) {
       const percentage = total > 0 ? Math.round((data.value / total) * 100) : 0
       
       return (
-        <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
+        <div className="bg-gray-900 p-3 border border-gray-300 rounded-lg shadow-lg">
           <div className="flex items-center gap-2 mb-2">
             <div 
               className="w-4 h-4 rounded-sm" 
               style={{ backgroundColor: data.color }}
             />
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-white">
               {data.name} Severity
             </span>
           </div>
           <div className="space-y-1">
             <div className="flex justify-between gap-4">
-              <span className="text-sm text-gray-600">Count:</span>
-              <span className="text-sm font-medium text-gray-900">{data.value}</span>
+              <span className="text-sm text-gray-400">Count:</span>
+              <span className="text-sm font-medium text-white">{data.value}</span>
             </div>
             <div className="flex justify-between gap-4">
-              <span className="text-sm text-gray-600">Percentage:</span>
-              <span className="text-sm font-medium text-gray-900">{percentage}%</span>
+              <span className="text-sm text-gray-400">Percentage:</span>
+              <span className="text-sm font-medium text-white">{percentage}%</span>
             </div>
           </div>
         </div>
@@ -84,11 +84,11 @@ function SeverityPieChart({ logs, onSeverityClick, selectedSeverity }) {
   
   if (!chartData || chartData.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-gray-900 rounded-lg shadow-sm border border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Severity Distribution
         </h3>
-        <div className="h-64 flex items-center justify-center text-gray-500">
+        <div className="h-64 flex items-center justify-center text-gray-400">
           <div className="text-center">
             <div className="text-lg mb-2">No severity data available</div>
             <div className="text-sm">All logs have unknown severity levels</div>
@@ -99,12 +99,12 @@ function SeverityPieChart({ logs, onSeverityClick, selectedSeverity }) {
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-transparent p-2">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-white">
           Severity Distribution
         </h3>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-400">
           Click segments to filter
         </div>
       </div>
@@ -150,7 +150,7 @@ function SeverityPieChart({ logs, onSeverityClick, selectedSeverity }) {
         </ResponsiveContainer>
       </div>
       
-      <div className="mt-4 text-xs text-gray-500 text-center">
+      <div className="mt-4 text-xs text-gray-400 text-center">
         {selectedSeverity !== 'all' && (
           <span>
             Filtered by {selectedSeverity} severity. Click chart or{' '}

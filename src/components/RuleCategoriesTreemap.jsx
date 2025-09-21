@@ -1,6 +1,35 @@
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts'
 import { getRuleCategories, getSeverityInfo } from '../utils/dashboardUtils'
+
+// Simple error boundary for treemap
+class TreemapErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="bg-gray-900 rounded-lg shadow-sm border border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">
+            Rule Categories Distribution
+          </h3>
+          <div className="text-center text-gray-400 py-8">
+            <p>Treemap visualization temporarily unavailable</p>
+            <p className="text-sm mt-2">Data processing in progress...</p>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme = 'light' }) => {
   // Process rule categories data
@@ -68,8 +97,8 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
       const severityInfo = getSeverityInfo(data.avgSeverity)
 
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg max-w-xs">
-          <p className="font-medium text-gray-900 mb-2">{data.displayName}</p>
+        <div className="bg-black p-3 border border-white/20 shadow-lg max-w-xs">
+          <p className="font-medium text-white mb-2">{data.displayName}</p>
           
           <div className="space-y-1 text-sm">
             <p>
@@ -84,8 +113,8 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
           </div>
 
           {/* Severity breakdown */}
-          <div className="mt-2 pt-2 border-t border-gray-100">
-            <p className="text-xs text-gray-600 mb-1">Severity Breakdown:</p>
+          <div className="mt-2 pt-2 border-t border-gray-700">
+            <p className="text-xs text-gray-400 mb-1">Severity Breakdown:</p>
             <div className="grid grid-cols-2 gap-1 text-xs">
               {data.critical > 0 && (
                 <span className="text-red-600">Critical: {data.critical}</span>
@@ -102,7 +131,7 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
             </div>
           </div>
 
-          <p className="text-xs text-gray-500 mt-2">Click to filter by category</p>
+          <p className="text-xs text-gray-400 mt-2">Click to filter by category</p>
         </div>
       )
     }
@@ -111,6 +140,21 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
 
   // Custom treemap content
   const CustomizedContent = ({ root, depth, x, y, width, height, index, payload, colors, rank, name }) => {
+    // Safety check for payload
+    if (!payload || typeof payload !== 'object') {
+      return (
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill="#6b7280"
+          stroke="#fff"
+          strokeWidth={1}
+        />
+      )
+    }
+    
     // Only show labels for larger segments
     const showLabel = width > 50 && height > 30
     const fontSize = Math.min(width / 8, height / 4, 12)
@@ -123,16 +167,16 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
           width={width}
           height={height}
           style={{
-            fill: payload.fill,
+            fill: payload.fill || '#6b7280',
             stroke: '#fff',
             strokeWidth: 2,
             strokeOpacity: 1,
-            fillOpacity: payload.opacity,
+            fillOpacity: payload.opacity || 1,
             cursor: 'pointer'
           }}
           onClick={() => handleClick(payload)}
         />
-        {showLabel && (
+        {showLabel && payload.displayName && (
           <>
             {/* Category name */}
             <text
@@ -155,10 +199,10 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
               fontSize={Math.max(fontSize - 2, 8)}
               style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
             >
-              {payload.count} events
+              {payload.count || 0} events
             </text>
             {/* Percentage if space allows */}
-            {height > 50 && (
+            {height > 50 && payload.percentage && (
               <text
                 x={x + width / 2}
                 y={y + height / 2 + fontSize * 1.5}
@@ -178,11 +222,11 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
 
   if (!categoriesData.length) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-transparent p-2">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Rule Categories Distribution
         </h3>
-        <div className="text-center text-gray-500">
+        <div className="text-center text-gray-400">
           <p>No rule categories found</p>
         </div>
       </div>
@@ -190,20 +234,21 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <TreemapErrorBoundary>
+      <div className="bg-transparent p-2">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-white">
           Rule Categories Distribution
         </h3>
         {selectedCategory && selectedCategory !== 'all' && (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">Filtered by:</span>
+            <span className="text-sm text-gray-400">Filtered by:</span>
             <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium">
               {selectedCategory.replace(/_/g, ' ')}
             </span>
             <button
               onClick={() => onCategoryClick && onCategoryClick('all')}
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
+              className="text-xs text-gray-400 hover:text-gray-700 underline"
               aria-label="Clear category filter"
             >
               Clear
@@ -227,54 +272,54 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
       </div>
 
       {/* Legend */}
-      <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="mt-4 pt-4 border-t border-gray-700">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="font-medium text-gray-700 mb-2">Attack Categories</p>
+            <p className="font-medium text-white mb-2">Attack Categories</p>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-red-500 rounded"></div>
-                <span className="text-gray-600">Direct Attacks</span>
+                <span className="text-gray-400">Direct Attacks</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-purple-500 rounded"></div>
-                <span className="text-gray-600">Malware/Threats</span>
+                <span className="text-gray-400">Malware/Threats</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-orange-500 rounded"></div>
-                <span className="text-gray-600">Authentication</span>
+                <span className="text-gray-400">Authentication</span>
               </div>
             </div>
           </div>
           
           <div>
-            <p className="font-medium text-gray-700 mb-2">System Categories</p>
+            <p className="font-medium text-white mb-2">System Categories</p>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-cyan-500 rounded"></div>
-                <span className="text-gray-600">File Integrity</span>
+                <span className="text-gray-400">File Integrity</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-green-500 rounded"></div>
-                <span className="text-gray-600">System Monitoring</span>
+                <span className="text-gray-400">System Monitoring</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-teal-500 rounded"></div>
-                <span className="text-gray-600">Network Security</span>
+                <span className="text-gray-400">Network Security</span>
               </div>
             </div>
           </div>
 
           <div>
-            <p className="font-medium text-gray-700 mb-2">Summary</p>
+            <p className="font-medium text-white mb-2">Summary</p>
             <div className="space-y-1">
-              <p className="text-gray-600">
+              <p className="text-gray-400">
                 <span className="font-medium">{categoriesData.length}</span> Categories
               </p>
-              <p className="text-gray-600">
+              <p className="text-gray-400">
                 <span className="font-medium">{logs.length}</span> Total Events
               </p>
-              <p className="text-gray-600">
+              <p className="text-gray-400">
                 Top: <span className="font-medium">{categoriesData[0]?.displayName || 'None'}</span>
               </p>
             </div>
@@ -282,6 +327,7 @@ const RuleCategoriesTreemap = ({ logs, onCategoryClick, selectedCategory, theme 
         </div>
       </div>
     </div>
+    </TreemapErrorBoundary>
   )
 }
 

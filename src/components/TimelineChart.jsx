@@ -20,8 +20,8 @@ function TimelineChart({ logs }) {
       const total = payload.reduce((sum, entry) => sum + entry.value, 0)
       
       return (
-        <div className="bg-white p-3 border border-gray-300 rounded-lg shadow-lg">
-          <div className="font-medium text-gray-900 mb-2">
+        <div className="bg-gray-900 p-3 border border-gray-300 rounded-lg shadow-lg">
+          <div className="font-medium text-white mb-2">
             {formattedTime}
           </div>
           <div className="space-y-1">
@@ -36,17 +36,17 @@ function TimelineChart({ logs }) {
                     {entry.dataKey}
                   </span>
                 </div>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-white">
                   {entry.value}
                 </span>
               </div>
             ))}
-            <div className="border-t border-gray-200 pt-1 mt-2">
+            <div className="border-t border-gray-700 pt-1 mt-2">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-sm font-medium text-gray-700">
                   Total
                 </span>
-                <span className="text-sm font-bold text-gray-900">
+                <span className="text-sm font-bold text-white">
                   {total}
                 </span>
               </div>
@@ -69,11 +69,11 @@ function TimelineChart({ logs }) {
   
   if (!chartData || chartData.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-gray-900 rounded-lg shadow-sm border border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Timeline Analysis
         </h3>
-        <div className="h-64 flex items-center justify-center text-gray-500">
+        <div className="h-64 flex items-center justify-center text-gray-400">
           <div className="text-center">
             <div className="text-lg mb-2">No timeline data available</div>
             <div className="text-sm">Logs need valid timestamps for timeline analysis</div>
@@ -84,12 +84,12 @@ function TimelineChart({ logs }) {
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-transparent p-2">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-white">
           Timeline Analysis
         </h3>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-400">
           Events over time by severity
         </div>
       </div>
@@ -156,7 +156,7 @@ function TimelineChart({ logs }) {
         </ResponsiveContainer>
       </div>
       
-      <div className="mt-4 text-xs text-gray-500 text-center">
+      <div className="mt-4 text-xs text-gray-400 text-center">
         Hover over the chart to see detailed breakdown for each time period
       </div>
     </div>

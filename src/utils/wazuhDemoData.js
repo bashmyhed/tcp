@@ -34,8 +34,9 @@ const agentNames = [
 ]
 
 // Create comprehensive Wazuh-style logs
-export const createWazuhDemoData = () => {
-  const timestamps = generateTimeRange(24)
+export const createWazuhDemoData = (options = {}) => {
+  const hours = typeof options.hours === 'number' ? Math.max(1, Math.min(168, options.hours)) : 24
+  const timestamps = generateTimeRange(hours)
   const logs = []
   let eventId = 1000
   
@@ -224,27 +225,93 @@ export const createWazuhDemoData = () => {
     }
   ]
   
-  // Generate events based on weights
-  const totalWeight = eventTypes.reduce((sum, type) => sum + type.weight, 0)
-  
-  timestamps.forEach(timestamp => {
-    const eventsThisSlot = 1 + Math.floor(Math.random() * 8) // 1-8 events per time slot
-    
-    for (let i = 0; i < eventsThisSlot; i++) {
-      const random = Math.random() * totalWeight
-      let currentWeight = 0
-      let selectedType = eventTypes[0]
-      
-      for (const eventType of eventTypes) {
-        currentWeight += eventType.weight
-        if (random <= currentWeight) {
-          selectedType = eventType
-          break
+  // Helper: severity bias
+  const applySeverityBias = (level, bias) => {
+    if (!bias) return level
+    const clamp = (n, min, max) => Math.max(min, Math.min(max, n))
+    switch (bias) {
+      case 'critical': return clamp(level + 2, 1, 15)
+      case 'high': return clamp(level + 1, 1, 15)
+      case 'low': return clamp(level - 1, 1, 15)
+      default: return level
+    }
+  }
+
+  // Helper: pick agent with bias
+  const pickBiasedAgent = (fallbackName) => {
+    const biasList = Array.isArray(options.agentBias) ? options.agentBias : []
+    if (biasList.length === 0) return fallbackName
+    // 70% chance to pick from bias
+    if (Math.random() < 0.7) {
+      return biasList[Math.floor(Math.random() * biasList.length)]
+    }
+    return fallbackName
+  }
+
+  // Prepare emphasis weights per category
+  const emphasis = options.emphasisWeights || {}
+
+  // Choose how many events per time slot
+  const slotScale = options.countScale === 'small' ? 4 : options.countScale === 'large' ? 10 : 7
+
+  // Weighted event selection based on emphasis
+  const weightedTypes = () => {
+    return eventTypes.map(t => {
+      // Create a sample event to check groups without actually generating it
+      let groupMultiplier = 1
+      try {
+        // Get the first rule groups to determine multiplier
+        if (t.generate && typeof t.generate === 'function') {
+          const sampleEvent = t.generate()
+          if (sampleEvent && sampleEvent.rule && sampleEvent.rule.groups) {
+            groupMultiplier = sampleEvent.rule.groups.reduce((maxMul, g) => {
+              const mul = emphasis[g] || emphasis['attacks'] || 1
+              return Math.max(maxMul, mul)
+            }, 1)
+          }
         }
+      } catch (e) {
+        console.warn('Error generating sample event for weight calculation:', e)
+        groupMultiplier = 1
       }
-      
-      const event = selectedType.generate()
-      
+      return { t, weight: t.weight * groupMultiplier }
+    })
+  }
+
+  timestamps.forEach(timestamp => {
+    const eventsThisSlot = 1 + Math.floor(Math.random() * slotScale)
+
+    for (let i = 0; i < eventsThisSlot; i++) {
+      const choices = weightedTypes()
+      const total = choices.reduce((s, c) => s + c.weight, 0)
+      let r = Math.random() * total
+      let selected = choices[0].t
+      for (const c of choices) {
+        if (r <= c.weight) { selected = c.t; break }
+        r -= c.weight
+      }
+
+      // Generate event and apply biases
+      let event
+      try {
+        event = selected.generate()
+        if (!event || !event.rule || !event.agent) {
+          console.warn('Generated invalid event, skipping')
+          continue
+        }
+      } catch (e) {
+        console.warn('Error generating event:', e)
+        continue
+      }
+
+      // Agent bias
+      const biasedAgentName = pickBiasedAgent(event.agent?.name || 'unknown-agent')
+      event.agent.name = biasedAgentName
+      event.host = { name: `${biasedAgentName}.company.com`, ip: event.agent?.ip || '10.0.1.1' }
+
+      // Severity bias
+      event.level = applySeverityBias(event.level || 5, options.severityBias)
+
       logs.push({
         id: String(eventId++),
         timestamp,
@@ -294,6 +361,70 @@ export const createWazuhDemoData = () => {
       issues: [],
       optimizations: []
     }
+  }
+}
+
+// Parse a natural-language-ish query into generator options
+export const generateDemoDataFromQuery = (query = '') => {
+  const q = (query || '').toLowerCase()
+
+  // Time range
+  let hours = 24
+  const m = q.match(/last\s+(\d+)\s*(h|hr|hour|hours)/)
+  if (m) hours = Math.min(168, Math.max(1, parseInt(m[1], 10)))
+  else if (q.includes('last hour')) hours = 1
+  else if (q.includes('today')) hours = 24
+  else if (q.includes('week')) hours = 24 * 7
+
+  // Emphasis weights
+  const emphasisWeights = {}
+  const addWeight = (k, w) => { emphasisWeights[k] = Math.max(emphasisWeights[k] || 1, w) }
+
+  if (/(auth|login|ssh|password|brute)/.test(q)) { addWeight('brute_force', 3); addWeight('authentication_failed', 2); addWeight('attacks', 1.5) }
+  if (/(malware|virus|trojan|ransom)/.test(q)) { addWeight('malware', 3); addWeight('antivirus', 2); addWeight('threats', 1.5) }
+  if (/(sql|xss|web)/.test(q)) { addWeight('sql_injection', 3); addWeight('web_attack', 2); addWeight('attacks', 1.5) }
+  if (/(intrusion|ids|network|firewall|scan)/.test(q)) { addWeight('intrusion_detection', 3); addWeight('network_security', 2); addWeight('firewall', 2) }
+  if (/(privilege|root|sudo|escalation)/.test(q)) { addWeight('privilege_escalation', 3); addWeight('attacks', 1.5) }
+  if (/(fim|file integrity|checksum|tamper)/.test(q)) { addWeight('file_integrity', 3); addWeight('system_monitoring', 1.5) }
+  if (/(lockout|policy)/.test(q)) { addWeight('policy_violation', 2); addWeight('account_locked', 2) }
+
+  // Agent bias
+  const agentBias = []
+  if (/(web|apache|nginx)/.test(q)) agentBias.push('web-server-01', 'web-server-02')
+  if (/(db|database|mysql|postgres)/.test(q)) agentBias.push('database-server-01')
+  if (/(firewall|ufw|suricata|ids)/.test(q)) agentBias.push('firewall-01')
+  if (/(workstation|laptop|desktop)/.test(q)) agentBias.push('workstation-03', 'workstation-07')
+  if (/(domain controller|ad|active directory)/.test(q)) agentBias.push('domain-controller-01')
+
+  // Severity bias
+  let severityBias = null
+  if (/critical/.test(q)) severityBias = 'critical'
+  else if (/high/.test(q)) severityBias = 'high'
+  else if (/low/.test(q)) severityBias = 'low'
+
+  // Count scale
+  let countScale = 'normal'
+  if (/(few|sample|example)/.test(q) || hours <= 2) countScale = 'small'
+  if (/(many|all|overall|massive|flood)/.test(q) || hours >= 24) countScale = 'large'
+
+  const data = createWazuhDemoData({ hours, emphasisWeights, agentBias, severityBias, countScale })
+
+  // Simulate confidence based on specificity
+  const specificityScore = Object.keys(emphasisWeights).length + (severityBias ? 1 : 0) + (agentBias.length > 0 ? 1 : 0)
+  const nl_confidence = Math.min(0.98, 0.7 + specificityScore * 0.06)
+
+  return {
+    success: true,
+    nl_confidence,
+    data: {
+      ...data.data,
+      // Keep the same structure but refresh took based on hours and scale
+      search_stats: {
+        took: 120 + Math.floor(Math.random() * 160),
+        total_hits: data.data.logs.length
+      }
+    },
+    nl_validation: { issues: [], optimizations: [] }
   }
 }
 
