@@ -3,7 +3,9 @@ import { motion } from 'framer-motion'
 import { PanelLeftOpen, PanelLeftClose } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import LogViewer from '../components/LogViewer'
+import SIEMVisualizationDashboard from '../components/SIEMVisualizationDashboard'
 import { sampleSiemLogs, sampleApiResponse } from '../utils/sampleSiemData'
+import { wazuhDashboardDemo, calculateAttackStatistics } from '../utils/wazuhDemoData'
 
 // Setup wizard states
 const SETUP_STATES = {
@@ -45,6 +47,11 @@ function ChatPage() {
   const [siemLogs, setSiemLogs] = useState([])
   const [showLogViewer, setShowLogViewer] = useState(false)
   const [lastQueryTerm, setLastQueryTerm] = useState('')
+  
+  // Dashboard data state
+  const [dashboardData, setDashboardData] = useState(null)
+  const [showDashboard, setShowDashboard] = useState(false)
+  const [viewMode, setViewMode] = useState('table') // 'table' or 'dashboard'
 
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
@@ -314,7 +321,7 @@ function ChatPage() {
     e.target.value = ''
   }
 
-  // Keyboard shortcuts (Ctrl+B for sidebar, Ctrl+L for log viewer, Escape to close log viewer)
+  // Keyboard shortcuts (Ctrl+B for sidebar only)
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Ctrl+B: Toggle sidebar
@@ -322,29 +329,11 @@ function ChatPage() {
         e.preventDefault()
         setSidebarOpen(prev => !prev)
       }
-      
-      // Ctrl+L: Toggle log viewer (if logs are available)
-      if (e.ctrlKey && e.key === 'l' && siemLogs.length > 0) {
-        e.preventDefault()
-        setShowLogViewer(prev => !prev)
-      }
-      
-      // Escape: Close log viewer
-      if (e.key === 'Escape' && showLogViewer) {
-        setShowLogViewer(false)
-      }
-      
-      // Ctrl+E: Export current logs (if log viewer is open)
-      if (e.ctrlKey && e.key === 'e' && showLogViewer && siemLogs.length > 0) {
-        e.preventDefault()
-        // Trigger export - could open a modal or start download
-        console.log('Export logs shortcut triggered')
-      }
     }
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [siemLogs.length, showLogViewer])
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -551,7 +540,7 @@ function ChatPage() {
         return
       }
       
-      // Demo command for testing SIEM interface
+      // Demo commands for testing SIEM interface
       if (text.toLowerCase().includes('demo') || text.toLowerCase().includes('test siem') || text.toLowerCase().includes('sample logs')) {
         addSystemMessage('Loading demo SIEM logs...')
         setLastQueryTerm(text)
@@ -560,6 +549,8 @@ function ChatPage() {
         setTimeout(() => {
           setSiemLogs(sampleSiemLogs)
           setShowLogViewer(true)
+          setShowDashboard(false) // Hide dashboard for demo
+          setViewMode('table')
           
           const demoMessage = `✓ Demo query executed successfully\n` +
             `Found: ${sampleSiemLogs.length} sample log entries\n` +
@@ -567,10 +558,81 @@ function ChatPage() {
             `\nSample SIEM logs loaded for demonstration.\n` +
             `This shows authentication failures, potential attacks, and system activities.\n` +
             `\nUse the filters above the log viewer to explore the data.\n` +
-            `\nKeyboard shortcuts: Ctrl+L (toggle logs), Escape (close logs), Ctrl+B (sidebar)`
+            `\nTry: 'dashboard demo' for the new visualization dashboard!`
           
           startTyping(demoMessage)
         }, 800)
+        return
+      }
+      
+      // Dashboard demo command
+      if (text.toLowerCase().includes('dashboard demo') || text.toLowerCase().includes('test dashboard')) {
+        addSystemMessage('Loading SIEM visualization dashboard...')
+        setLastQueryTerm(text)
+        
+        // Import dashboard components and sample data
+        const dashboardMessage = `✓ Dashboard demo ready!\n` +
+          `\nA new SIEM Visualization Dashboard has been implemented with:\n` +
+          `• Interactive charts (pie, bar, timeline)\n` +
+          `• Advanced filtering and sorting\n` +
+          `• Real-time search with highlighting\n` +
+          `• Export capabilities (JSON, CSV, Text)\n` +
+          `• Responsive design with accessibility support\n` +
+          `\nThe dashboard appears automatically based on your query results.\n` +
+          `Real API responses show the dashboard, demo commands show the table.\n` +
+          `\nComponents created:\n` +
+          `• QueryStatusHeader (confidence meter & stats)\n` +
+          `• SummaryMetricsGrid (key metrics - hides zero values)\n` +
+          `• TimelineChart (events over time by severity)\n` +
+          `• SeverityPieChart (interactive severity distribution)\n` +
+          `• TopAgentsChart (horizontal bar chart)\n` +
+          `• LogDataTable (sortable, filterable, paginated table)\n` +
+          `• EmptyStatePanel (no results with suggestions)\n` +
+          `\nTry a real query like 'Show me authentication failures' to see it!`
+        
+        startTyping(dashboardMessage)
+        return
+      }
+      
+      // Wazuh security demo command
+      if (text.toLowerCase().includes('wazuh demo') || text.toLowerCase().includes('security dashboard') || text.toLowerCase().includes('attack demo')) {
+        addSystemMessage('Loading Wazuh security dashboard with realistic attack data...')
+        setLastQueryTerm(text)
+        
+        // Simulate API delay
+        setTimeout(() => {
+          const wazuhData = wazuhDashboardDemo
+          const attackStats = calculateAttackStatistics(wazuhData)
+          
+          setDashboardData(wazuhData.data)
+          setShowDashboard(true)
+          setShowLogViewer(false)
+          setViewMode('dashboard')
+          
+          const wazuhMessage = `🔒 Wazuh Security Dashboard Loaded\n` +
+            `\n📊 THREAT INTELLIGENCE SUMMARY:\n` +
+            `• Total Security Events: ${wazuhData.data.logs.length.toLocaleString()}\n` +
+            `• Attack Events: ${attackStats.totalAttacks}\n` +
+            `• Unique Attack Sources: ${attackStats.uniqueAttackSources} IPs\n` +
+            `• Targeted Systems: ${attackStats.targetedHosts}\n` +
+            `• Top Attack Type: ${attackStats.topAttackType?.replace(/_/g, ' ')?.toUpperCase() || 'Various'}\n` +
+            `\n🚨 ACTIVE SECURITY ANALYSIS:\n` +
+            `• Real-time attack source tracking with geolocation\n` +
+            `• Advanced rule category distribution (treemap)\n` +
+            `• Security insights with actionable recommendations\n` +
+            `• Interactive charts for threat hunting\n` +
+            `• Comprehensive attack timeline visualization\n` +
+            `\n🛡️ DASHBOARD FEATURES:\n` +
+            `• Attack Sources Chart (geographic distribution)\n` +
+            `• Rule Categories Treemap (security rule analysis)\n` +
+            `• Security Insights Panel (AI-powered recommendations)\n` +
+            `• Interactive filtering by attack source & category\n` +
+            `• Real-time threat severity analysis\n` +
+            `\nThis shows realistic Wazuh-style security events over the last 24 hours!\n` +
+            `Click on any chart element to filter and drill down into specific threats.`
+          
+          startTyping(wazuhMessage)
+        }, 1200)
         return
       }
 
@@ -582,29 +644,59 @@ function ChatPage() {
       if (queryResult.success) {
         const { logs, summary, metadata } = queryResult
         
-        if (logs && logs.length > 0) {
-          // Update SIEM logs and show viewer
+        // Check if this looks like a real API response (has the full structure)
+        const isRealApiResponse = queryResult.data && 
+          queryResult.data.search_stats && 
+          queryResult.data.nlp_response && 
+          typeof queryResult.data.nl_confidence !== 'undefined'
+        
+        if (isRealApiResponse) {
+          // Use the new dashboard for real API responses
+          setDashboardData(queryResult.data)
+          setShowDashboard(true)
+          setShowLogViewer(false) // Hide table view
+          setViewMode('dashboard')
+          
+          const hasLogs = queryResult.data.has_logs && logs && logs.length > 0
+          const confidence = Math.round((queryResult.data.nl_confidence || 0) * 100)
+          
+          const dashboardSummary = hasLogs ? 
+            `✓ Query executed successfully (${confidence}% confidence)\n` +
+            `Found: ${logs.length.toLocaleString()} log entries\n` +
+            `Execution time: ${queryResult.data.search_stats?.took || 'N/A'}ms\n` +
+            `\nResults displayed in the dashboard below with interactive charts.` :
+            `✓ Query processed (${confidence}% confidence)\n` +
+            `No log entries found matching your criteria.\n` +
+            `Execution time: ${queryResult.data.search_stats?.took || 'N/A'}ms\n` +
+            `\nSee suggestions and tips in the dashboard below.`
+          
+          startTyping(dashboardSummary)
+        } else if (logs && logs.length > 0) {
+          // Fallback to table view for simple responses
           setSiemLogs(logs)
           setShowLogViewer(true)
+          setShowDashboard(false) // Hide dashboard
+          setViewMode('table')
           
-          // Provide summary message
           const resultSummary = `✓ Query executed successfully\n` +
             `Found: ${logs.length.toLocaleString()} log entries\n` +
-            `Execution time: ${metadata.executionTime || 'N/A'}ms\n` +
+            `Execution time: ${metadata?.executionTime || 'N/A'}ms\n` +
             `\n${summary || 'Results displayed in the log viewer below.'}\n` +
             `\nUse the filters above the log viewer to refine your search.`
           
           startTyping(resultSummary)
         } else {
-          // No logs returned, show summary or raw data
+          // No logs and no full API structure
           const message = summary || 
             `✓ Query executed but returned no log entries.\n\nFull response:\n${JSON.stringify(queryResult.data, null, 2)}`
           startTyping(message)
           setShowLogViewer(false)
+          setShowDashboard(false)
         }
       } else {
         addSystemMessage(`❌ Query failed: ${queryResult.error}`)
         setShowLogViewer(false)
+        setShowDashboard(false)
       }
     }
   }
@@ -629,30 +721,23 @@ function ChatPage() {
         </div>
         <div className="text-sm text-white/70 truncate flex-1">{activeSession}</div>
         
-        {/* Log viewer toggle and shortcuts */}
+        {/* Status and shortcuts */}
         <div className="flex items-center gap-2 text-xs">
-          {showLogViewer && (
-            <button
-              onClick={() => setShowLogViewer(!showLogViewer)}
-              className="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded hover:bg-blue-500/30 transition-colors"
-              title="Hide log viewer (Ctrl+L or Escape)"
-            >
-              {siemLogs.length} logs
-            </button>
+          {/* Show current view status */}
+          {showDashboard && (
+            <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs">
+              Dashboard View
+            </span>
           )}
           
-          {siemLogs.length > 0 && !showLogViewer && (
-            <button
-              onClick={() => setShowLogViewer(true)}
-              className="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded hover:bg-green-500/30 transition-colors"
-              title="Show log viewer (Ctrl+L)"
-            >
-              View {siemLogs.length} logs
-            </button>
+          {showLogViewer && (
+            <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">
+              {siemLogs.length} logs
+            </span>
           )}
           
           <div className="text-white/40 hidden md:block">
-            Ctrl+B: Sidebar {siemLogs.length > 0 ? '• Ctrl+L: Logs' : ''}
+            Ctrl+B: Sidebar
           </div>
         </div>
       </div>
@@ -722,6 +807,44 @@ function ChatPage() {
         </div>
         <div ref={messagesEndRef} />
         </div>
+        
+        {/* SIEM Dashboard */}
+        {showDashboard && dashboardData && (
+          <div className="h-1/2 border-t border-white/20 overflow-auto bg-gray-50">
+            <div className="p-4">
+              <SIEMVisualizationDashboard
+                data={{
+                  success: true,
+                  nl_confidence: dashboardData.nl_confidence || dashboardData.nlp_response?.confidence || 0,
+                  data: {
+                    search_stats: dashboardData.search_stats,
+                    logs: dashboardData.logs || [],
+                    log_count: dashboardData.log_count || 0,
+                    has_logs: dashboardData.has_logs || false,
+                    nlp_response: {
+                      suggestions: dashboardData.nlp_response?.suggestions || [],
+                      fallback_used: dashboardData.nlp_response?.fallback_used || false
+                    }
+                  },
+                  nl_validation: {
+                    issues: dashboardData.nlp_response?.validation?.issues?.map(issue => issue.message) || [],
+                    optimizations: dashboardData.nlp_response?.validation?.optimizations || []
+                  }
+                }}
+                originalQuery={lastQueryTerm}
+                onQueryRefine={(newQuery) => {
+                  // Set the input value and trigger a new query
+                  setInputValue(newQuery)
+                  // Focus the input
+                  setTimeout(() => {
+                    inputRef.current?.focus()
+                  }, 100)
+                }}
+                theme="light"
+              />
+            </div>
+          </div>
+        )}
         
         {/* SIEM Log Viewer */}
         {showLogViewer && (
