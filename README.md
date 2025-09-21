@@ -8,9 +8,13 @@ A modern React chat application with a terminal emulator aesthetic, built with V
 - 💻 **Terminal-style UI** - Monospace font and console-inspired message layout
 - 🚀 **Smooth Animations** - Framer Motion powered sidebar and transitions
 - 📱 **Responsive Design** - Works on desktop and mobile
-- 🔐 **Login Page** - Simple authentication flow
-- 💬 **Chat Interface** - Terminal-style message display with timestamps
+- 🔐 **Wazuh Integration** - Setup wizard for SIEM credentials and rules
+- 💬 **NLP Chat Interface** - Natural language queries for SIEM data
 - 📋 **Chat History** - Sidebar with previous chat sessions
+- 🔍 **SIEM Log Viewer** - Interactive log display with filtering and search
+- 📊 **Advanced Filtering** - Filter by severity, time range, source, and type
+- 💾 **Export Capabilities** - Export logs in JSON, CSV, or text formats
+- ⌨️ **Keyboard Shortcuts** - Efficient navigation with hotkeys
 - ⚡ **Hot Reload** - Fast development with Vite
 
 ## Quick Start
@@ -77,9 +81,18 @@ src/
 ### Chat Page
 - Terminal-style message display with prefixes ([USER], [ASSISTANT], [SYSTEM])
 - Auto-scrolling chat area
-- Input with terminal prompt (`>`) 
+- Input with terminal prompt (`>`)
 - Monospace Fira Code font
 - Color-coded message types
+- Integrated SIEM log viewer for query results
+
+### SIEM Log Viewer
+- Interactive log entries with expand/collapse functionality
+- Advanced filtering by severity, time range, source, and type
+- Real-time search with highlighting
+- Export capabilities (JSON, CSV, text)
+- Virtual scrolling for large datasets (1000+ logs)
+- Keyboard shortcuts for efficient navigation
 
 ### Sidebar
 - Hamburger menu toggle
@@ -136,6 +149,27 @@ The app uses Fira Code by default. Change the font family in `tailwind.config.js
 
 ### Messages
 Customize message styling and prefixes in `ChatPage.jsx`.
+
+## SIEM Features
+
+This application includes advanced SIEM log analysis capabilities. For detailed documentation on the SIEM features, filtering, keyboard shortcuts, and API integration, see:
+
+**[SIEM_FEATURES.md](./SIEM_FEATURES.md)**
+
+### Quick Start for SIEM
+
+1. Complete the Wazuh setup wizard (username, password, rules file)
+2. Enter natural language queries like:
+   - "Show me authentication failures in the last 24 hours"
+   - "Find high severity alerts from web servers"
+   - "Display blocked connections from suspicious IPs"
+3. Use `demo` or `test siem` to load sample data for testing
+
+### Keyboard Shortcuts
+- **Ctrl+B**: Toggle sidebar
+- **Ctrl+L**: Toggle log viewer
+- **Escape**: Close log viewer
+- **Ctrl+E**: Export logs
 
 ## License
 

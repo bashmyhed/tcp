@@ -1,8 +1,8 @@
 {
-      "id": 100001,
-      "description": "Multiple SSH authentication failures from same IP",
-      "type": "authentication",
-      "level": 10,
-      "category": "ssh_brute_force",
-      "mitre": "T1110.001"
+      "id": 100005,
+      "description": "Malware detected by antivirus",
+      "type": "malware",
+      "level": 15,
+      "category": "virus_detection",
+      "mitre": "T1566"
     }

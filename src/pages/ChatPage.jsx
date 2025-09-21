@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { PanelLeftOpen, PanelLeftClose } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
+import LogViewer from '../components/LogViewer'
+import { sampleSiemLogs, sampleApiResponse } from '../utils/sampleSiemData'
 
 // Setup wizard states
 const SETUP_STATES = {
@@ -38,6 +40,11 @@ function ChatPage() {
   
   // Store all created sessions for reuse
   const [availableSessions, setAvailableSessions] = useState([])
+  
+  // SIEM log data state
+  const [siemLogs, setSiemLogs] = useState([])
+  const [showLogViewer, setShowLogViewer] = useState(false)
+  const [lastQueryTerm, setLastQueryTerm] = useState('')
 
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
@@ -113,7 +120,19 @@ function ChatPage() {
       
       const result = await response.json()
       if (result.success) {
-        return { success: true, data: result }
+        // Parse SIEM log data if available
+        const logs = result.results || result.data?.logs || result.logs || []
+        return { 
+          success: true, 
+          data: result,
+          logs: Array.isArray(logs) ? logs : [],
+          summary: result.summary || result.message || '',
+          metadata: {
+            query: result.query || '',
+            totalResults: result.total_results || logs.length,
+            executionTime: result.execution_time || 0
+          }
+        }
       } else {
         return { success: false, error: result.error || 'Query failed' }
       }
@@ -295,18 +314,37 @@ function ChatPage() {
     e.target.value = ''
   }
 
-  // Keyboard shortcut for toggling sidebar (Ctrl+B)
+  // Keyboard shortcuts (Ctrl+B for sidebar, Ctrl+L for log viewer, Escape to close log viewer)
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Ctrl+B: Toggle sidebar
       if (e.ctrlKey && e.key === 'b') {
         e.preventDefault()
         setSidebarOpen(prev => !prev)
+      }
+      
+      // Ctrl+L: Toggle log viewer (if logs are available)
+      if (e.ctrlKey && e.key === 'l' && siemLogs.length > 0) {
+        e.preventDefault()
+        setShowLogViewer(prev => !prev)
+      }
+      
+      // Escape: Close log viewer
+      if (e.key === 'Escape' && showLogViewer) {
+        setShowLogViewer(false)
+      }
+      
+      // Ctrl+E: Export current logs (if log viewer is open)
+      if (e.ctrlKey && e.key === 'e' && showLogViewer && siemLogs.length > 0) {
+        e.preventDefault()
+        // Trigger export - could open a modal or start download
+        console.log('Export logs shortcut triggered')
       }
     }
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [siemLogs.length, showLogViewer])
 
   useEffect(() => {
     return () => {
@@ -512,15 +550,61 @@ function ChatPage() {
         addSystemMessage('❌ No active session found. Please restart the setup process.')
         return
       }
+      
+      // Demo command for testing SIEM interface
+      if (text.toLowerCase().includes('demo') || text.toLowerCase().includes('test siem') || text.toLowerCase().includes('sample logs')) {
+        addSystemMessage('Loading demo SIEM logs...')
+        setLastQueryTerm(text)
+        
+        // Simulate API delay
+        setTimeout(() => {
+          setSiemLogs(sampleSiemLogs)
+          setShowLogViewer(true)
+          
+          const demoMessage = `✓ Demo query executed successfully\n` +
+            `Found: ${sampleSiemLogs.length} sample log entries\n` +
+            `Execution time: 145ms\n` +
+            `\nSample SIEM logs loaded for demonstration.\n` +
+            `This shows authentication failures, potential attacks, and system activities.\n` +
+            `\nUse the filters above the log viewer to explore the data.\n` +
+            `\nKeyboard shortcuts: Ctrl+L (toggle logs), Escape (close logs), Ctrl+B (sidebar)`
+          
+          startTyping(demoMessage)
+        }, 800)
+        return
+      }
 
       addSystemMessage('Analyzing query...')
+      setLastQueryTerm(text)
+      
       const queryResult = await sendQuery(text, currentChatSession.chat_id)
       
       if (queryResult.success) {
-        // Show raw JSON response for now
-        startTyping(JSON.stringify(queryResult.data, null, 2))
+        const { logs, summary, metadata } = queryResult
+        
+        if (logs && logs.length > 0) {
+          // Update SIEM logs and show viewer
+          setSiemLogs(logs)
+          setShowLogViewer(true)
+          
+          // Provide summary message
+          const resultSummary = `✓ Query executed successfully\n` +
+            `Found: ${logs.length.toLocaleString()} log entries\n` +
+            `Execution time: ${metadata.executionTime || 'N/A'}ms\n` +
+            `\n${summary || 'Results displayed in the log viewer below.'}\n` +
+            `\nUse the filters above the log viewer to refine your search.`
+          
+          startTyping(resultSummary)
+        } else {
+          // No logs returned, show summary or raw data
+          const message = summary || 
+            `✓ Query executed but returned no log entries.\n\nFull response:\n${JSON.stringify(queryResult.data, null, 2)}`
+          startTyping(message)
+          setShowLogViewer(false)
+        }
       } else {
         addSystemMessage(`❌ Query failed: ${queryResult.error}`)
+        setShowLogViewer(false)
       }
     }
   }
@@ -544,10 +628,39 @@ function ChatPage() {
           )}
         </div>
         <div className="text-sm text-white/70 truncate flex-1">{activeSession}</div>
+        
+        {/* Log viewer toggle and shortcuts */}
+        <div className="flex items-center gap-2 text-xs">
+          {showLogViewer && (
+            <button
+              onClick={() => setShowLogViewer(!showLogViewer)}
+              className="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded hover:bg-blue-500/30 transition-colors"
+              title="Hide log viewer (Ctrl+L or Escape)"
+            >
+              {siemLogs.length} logs
+            </button>
+          )}
+          
+          {siemLogs.length > 0 && !showLogViewer && (
+            <button
+              onClick={() => setShowLogViewer(true)}
+              className="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded hover:bg-green-500/30 transition-colors"
+              title="Show log viewer (Ctrl+L)"
+            >
+              View {siemLogs.length} logs
+            </button>
+          )}
+          
+          <div className="text-white/40 hidden md:block">
+            Ctrl+B: Sidebar {siemLogs.length > 0 ? '• Ctrl+L: Logs' : ''}
+          </div>
+        </div>
       </div>
 
-      {/* Terminal Output + Input (input sits under last response; at top if empty) */}
-      <div className="flex-1 overflow-y-auto px-3 pb-4">
+      {/* Main content area - split between chat and log viewer */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Terminal Output + Input */}
+        <div className={`${showLogViewer ? 'h-1/2' : 'flex-1'} overflow-y-auto px-3 pb-4 transition-all duration-300`}>
         <div className="space-y-2">
           {messages.map((m) => (
             <motion.pre
@@ -608,6 +721,21 @@ function ChatPage() {
           />
         </div>
         <div ref={messagesEndRef} />
+        </div>
+        
+        {/* SIEM Log Viewer */}
+        {showLogViewer && (
+          <div className="h-1/2 border-t border-white/20">
+            <LogViewer 
+              logs={siemLogs} 
+              searchTerm={lastQueryTerm}
+              onStatusChange={(status) => {
+                // Optional: Update header with log status
+                console.log('Log viewer status:', status)
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Sidebar */}
