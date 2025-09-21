@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, PanelLeftClose } from 'lucide-react'
+import { Plus, PanelLeftClose, Settings } from 'lucide-react'
 
-function Sidebar({ isOpen, onClose, chatSessions, activeSession, onSessionSelect }) {
+function Sidebar({ isOpen, onClose, chatSessions, activeSession, onSessionSelect, onNewChat, onReconfigure }) {
   const sidebarVariants = {
     open: { x: 0 },
     closed: { x: '-100%' },
@@ -47,7 +47,7 @@ function Sidebar({ isOpen, onClose, chatSessions, activeSession, onSessionSelect
               {/* New Session (like ChatGPT) */}
               <button
                 onClick={() => {
-                  // Placeholder action for creating a new session
+                  onNewChat && onNewChat()
                   onClose()
                 }}
                 className="w-full flex items-center gap-2 px-3 py-2 rounded-md border border-white/15 text-white/90 hover:bg-white/10 hover:border-white/25 transition-colors text-sm"
@@ -78,10 +78,31 @@ function Sidebar({ isOpen, onClose, chatSessions, activeSession, onSessionSelect
                         : 'text-white/60 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <span className="truncate">{session.title}</span>
+                    <div className="flex-1 truncate">
+                      <div className="truncate">{session.title}</div>
+                      {session.session_info && (
+                        <div className="text-xs text-white/40 truncate">
+                          {session.session_info.username} • {session.chat_id ? session.chat_id.substring(0, 8) + '...' : 'No session'}
+                        </div>
+                      )}
+                    </div>
                   </button>
                 ))
               )}
+            </div>
+            
+            {/* Footer with reconfigure option */}
+            <div className="border-t border-white/10 p-4">
+              <button
+                onClick={() => {
+                  onReconfigure && onReconfigure()
+                  onClose()
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-md border border-white/15 text-white/90 hover:bg-white/10 hover:border-white/25 transition-colors text-sm"
+              >
+                <Settings size={16} />
+                <span className="truncate">Reconfigure Wazuh</span>
+              </button>
             </div>
           </motion.div>
         </>

@@ -1,0 +1,57 @@
+{
+  "rules": {
+    "authentication": {
+      "failed_login": {
+        "level": 5,
+        "description": "Failed login attempts",
+        "groups": ["authentication_failed", "pci_dss_10.2.4", "pci_dss_10.2.5"]
+      },
+      "successful_login": {
+        "level": 3,
+        "description": "Successful authentication",
+        "groups": ["authentication_success", "pci_dss_10.2.5"]
+      }
+    },
+    "system": {
+      "file_modified": {
+        "level": 7,
+        "description": "System file modification detected",
+        "groups": ["syscheck", "pci_dss_11.5"]
+      },
+      "process_started": {
+        "level": 3,
+        "description": "New process started",
+        "groups": ["process_monitor"]
+      }
+    },
+    "network": {
+      "port_scan": {
+        "level": 8,
+        "description": "Port scanning detected",
+        "groups": ["recon", "pci_dss_11.4"]
+      },
+      "connection_established": {
+        "level": 2,
+        "description": "Network connection established",
+        "groups": ["netinfo"]
+      }
+    },
+    "malware": {
+      "virus_detected": {
+        "level": 12,
+        "description": "Virus/Malware detected",
+        "groups": ["rootcheck", "malware"]
+      }
+    }
+  },
+  "filters": {
+    "ignore_sources": ["127.0.0.1", "::1"],
+    "min_level": 3,
+    "max_events_per_minute": 1000
+  },
+  "alerts": {
+    "email_notifications": true,
+    "syslog_output": true,
+    "json_output": true
+  }
+}

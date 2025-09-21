@@ -1,0 +1,8 @@
+{
+      "id": 100001,
+      "description": "Multiple SSH authentication failures from same IP",
+      "type": "authentication",
+      "level": 10,
+      "category": "ssh_brute_force",
+      "mitre": "T1110.001"
+    }
