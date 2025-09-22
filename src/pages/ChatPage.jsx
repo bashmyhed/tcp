@@ -17,11 +17,11 @@ const SETUP_STATES = {
   COMPLETED: 'completed'
 }
 
-// API endpoints (use Vite dev proxy in development)
-const API_BASE = '/api'
+// API endpoints (using Vite proxy)
+// Proxy is configured in vite.config.js to route /api/* to localhost:8000
 const API_ENDPOINTS = {
-  SESSIONS: `${API_BASE}/sessions`,
-  QUERY: `${API_BASE}/query`
+  SESSIONS: '/api/sessions',
+  QUERY: '/api/query'
 }
 
 function ChatPage() {
